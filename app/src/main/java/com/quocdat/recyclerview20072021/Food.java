@@ -7,14 +7,27 @@ import java.util.List;
 public class Food {
     private String name;
     private long price;
+    private int image;
 
-    public Food( String name, long price) {
+    public Food( String name, long price, int image) {
+        this.name = name;
+        this.price = price;
+        this.image = image;
+    }
+
+
+    public Food(String name, long price) {
         this.name = name;
         this.price = price;
     }
 
+    public int getImage() {
+        return image;
+    }
 
-
+    public void setImage(int image) {
+        this.image = image;
+    }
 
     public String getName() {
         return name;

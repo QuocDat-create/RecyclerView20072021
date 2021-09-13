@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
     List<Food> list;
     FoodAdapter adapter;
     FloatingActionButton fbAdd;
+    int mCurrentPage = 1;
+    int mTotalPage = 10;
+    boolean mLoading = false;
+    boolean mLastPage = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +64,51 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        rv.addOnScrollListener(new PaginationScrollListener((LinearLayoutManager) rv.getLayoutManager()) {
+            @Override
+            public void loadMoreItem() {
+                mLoading = true;
+                mCurrentPage += 1;
+
+                loadNextPage();
+            }
+
+            @Override
+            public boolean isLoading() {
+                return mLoading;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return mLastPage;
+            }
+        });
+    }
+
+    //Load information from new data
+    private void loadNextPage(){
+        new CountDownTimer(2000, 2000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                if (mCurrentPage > 2){
+                    adapter.removeLoading();
+                }
+                list.addAll(Food.getMock());
+                adapter.notifyDataSetChanged();
+                mLoading = false;
+
+                if (mCurrentPage < mTotalPage){
+                    adapter.addFooterLoading();
+                }else {
+                    mLastPage = true;
+                }
+            }
+        }.start();
     }
 
     private void openDialogAdd(){
@@ -83,6 +134,8 @@ public class MainActivity extends AppCompatActivity {
                 String price = edtPrice.getText().toString();
                 long mPrice = Long.parseLong(price);
                 dialog.dismiss();
+                Food food = new Food(name, mPrice);
+                list.add(food);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -91,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+                Toast.makeText(MainActivity.this, "You canceled this window!", Toast.LENGTH_SHORT).show();
             }
         });
     }
